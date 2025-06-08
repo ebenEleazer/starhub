@@ -1,0 +1,10 @@
+{
+  // Turn off the built-in CSS validator (it doesn’t understand Tailwind’s @ rules):
+  "css.validate": false,
+
+  // Enable the Tailwind CSS IntelliSense extension (if installed)
+  // to recognize `@tailwind` directives and provide completions.
+  "tailwindCSS.includeLanguages": {
+    "css": "tailwindcss"
+  }
+}
