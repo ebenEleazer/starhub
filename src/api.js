@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL + "/api";
+const API_BASE_URL = "https://starhub-backend.onrender.com";
 
 // Register a new user
 export async function registerUser(email, password) {
