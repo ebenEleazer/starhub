@@ -1,42 +1,41 @@
-const API_BASE_URL = "https://starhub-backend.onrender.com";
+const API_BASE_URL = "https://starhub-backend.onrender.com/api";
 
-// Register a new user
 export async function registerUser(email, password) {
-  const response = await fetch(API_BASE_URL + "/register", {
+  const response = await fetch(`${API_BASE_URL}/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: email, password: password }),
+    body: JSON.stringify({ email, password }),
   });
   const data = await response.json();
   if (!response.ok) {
     throw new Error(data.error || "Registration failed");
   }
-  return data; // e.g. { message: "User registered successfully" }
+  return data;
 }
 
-// Log in an existing user
 export async function loginUser(email, password) {
-  const response = await fetch(API_BASE_URL + "/login", {
+  const response = await fetch(`${API_BASE_URL}/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: email, password: password }),
+    body: JSON.stringify({ email, password }),
   });
   const data = await response.json();
   if (!response.ok) {
     throw new Error(data.error || "Login failed");
   }
-  return data; // e.g. { token: "your-jwt-token" }
+  return data;
 }
 
-// Fetch the protected profile (requires a valid JWT token)
 export async function getProfile(token) {
-  const response = await fetch(API_BASE_URL + "/profile", {
+  const response = await fetch(`${API_BASE_URL}/profile`, {
     method: "GET",
-    headers: { Authorization: "Bearer " + token },
+    headers: {
+      Authorization: "Bearer " + token,
+    },
   });
   const data = await response.json();
   if (!response.ok) {
     throw new Error(data.error || "Failed to fetch profile");
   }
-  return data; // e.g. { message: "Welcome, yourUsername" }
+  return data;
 }
