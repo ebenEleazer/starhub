@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
 
+// 🟢 CONNECT TO PRODUCTION BACKEND
 const socket = io("https://starhub-backend.onrender.com");
 
 export default function ChatRoom() {
@@ -14,14 +15,10 @@ export default function ChatRoom() {
 
   useEffect(() => {
     socket.emit("joinRoom", id);
-
     socket.on("chatMessage", (msg) => {
       setMessages((prev) => [...prev, msg]);
     });
-
-    return () => {
-      socket.off("chatMessage");
-    };
+    return () => socket.off("chatMessage");
   }, [id]);
 
   useEffect(() => {
@@ -57,9 +54,18 @@ export default function ChatRoom() {
   };
 
   const renderMessage = (msg, i) => {
-    if (msg.startsWith("https://starhub-backend.onrender.com/uploads/")) {
-      return <img key={i} src={msg} alt="media" className="max-w-xs rounded shadow" />;
+    // 🟢 NOW SUPPORT BOTH LOCALHOST + PRODUCTION IMAGE URLs
+    if (msg.includes("/uploads/") && msg.startsWith("http")) {
+      return (
+        <img
+          key={i}
+          src={msg}
+          alt="media"
+          className="max-w-xs rounded shadow"
+        />
+      );
     }
+
     return (
       <div key={i} className="bg-gray-100 rounded px-3 py-1 text-sm">
         {msg}
@@ -75,9 +81,7 @@ export default function ChatRoom() {
         ref={scrollRef}
         className="w-full max-w-xl h-72 overflow-y-auto border p-4 rounded bg-white space-y-2 mb-4"
       >
-        {messages.map((msg, i) => (
-          <div key={i}>{renderMessage(msg, i)}</div>
-        ))}
+        {messages.map((msg, i) => renderMessage(msg, i))}
       </div>
 
       <div className="flex items-center w-full max-w-xl space-x-2">
