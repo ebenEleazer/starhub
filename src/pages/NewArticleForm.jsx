@@ -4,19 +4,28 @@ import { useNavigate } from "react-router-dom";
 export default function NewArticleForm() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
-    const res = await fetch("http://localhost:5000/api/articles", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, content }),
-    });
+    try {
+      const res = await fetch("https://starhub-backend.onrender.com/api/articles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, content }),
+      });
 
-    if (res.ok) {
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to publish article");
+      }
+
       navigate("/articles");
+    } catch (err) {
+      setError(err.message);
     }
   };
 
@@ -39,6 +48,7 @@ export default function NewArticleForm() {
           onChange={(e) => setContent(e.target.value)}
           required
         />
+        {error && <p className="text-red-500 text-sm">{error}</p>}
         <button
           type="submit"
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"

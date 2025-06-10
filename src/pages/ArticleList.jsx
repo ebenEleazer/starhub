@@ -3,11 +3,16 @@ import { Link } from "react-router-dom";
 
 export default function ArticleList() {
   const [articles, setArticles] = useState([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/articles")
-      .then((res) => res.json())
-      .then((data) => setArticles(data));
+    fetch("https://starhub-backend.onrender.com/api/articles")
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch articles");
+        return res.json();
+      })
+      .then((data) => setArticles(data))
+      .catch((err) => setError(err.message));
   }, []);
 
   return (
@@ -19,6 +24,11 @@ export default function ArticleList() {
       >
         + New Article
       </Link>
+
+      {error && (
+        <p className="text-red-500 mb-4">Error: {error}</p>
+      )}
+
       <ul className="space-y-4">
         {articles.map((article) => (
           <li key={article.id} className="border p-4 rounded shadow bg-white">
@@ -28,7 +38,9 @@ export default function ArticleList() {
             >
               {article.title}
             </Link>
-            <p className="text-gray-600 mt-1">{article.content.slice(0, 100)}...</p>
+            <p className="text-gray-600 mt-1">
+              {article.content.slice(0, 100)}...
+            </p>
           </li>
         ))}
       </ul>

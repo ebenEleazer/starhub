@@ -4,13 +4,19 @@ import { useParams, Link } from "react-router-dom";
 export default function ArticleDetail() {
   const { id } = useParams();
   const [article, setArticle] = useState(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/articles/" + id)
-      .then((res) => res.json())
-      .then((data) => setArticle(data));
+    fetch("https://starhub-backend.onrender.com/api/articles/" + id)
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch article");
+        return res.json();
+      })
+      .then((data) => setArticle(data))
+      .catch((err) => setError(err.message));
   }, [id]);
 
+  if (error) return <p className="p-6 text-red-500">{error}</p>;
   if (!article) return <p className="p-6">Loading...</p>;
 
   return (

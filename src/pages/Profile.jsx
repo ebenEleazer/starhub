@@ -13,10 +13,10 @@ export default function Profile() {
     }
 
     getProfile(token)
-      .then(function (data) {
-        setMessage(data.message);  // e.g. “Welcome, yourUsername”
+      .then((data) => {
+        setMessage(data.message); // e.g. "Welcome, email@example.com"
       })
-      .catch(function (err) {
+      .catch((err) => {
         setError(err.message);
       });
   }, []);

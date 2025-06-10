@@ -6,19 +6,20 @@ export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMessage("");
+    setError("");
+
     try {
       await registerUser(email, password);
-      setMessage("Registration successful! Redirecting to login...");
-      // Redirect to login after 2 seconds
-      setTimeout(function () {
-        navigate("/login");
-      }, 2000);
+      setMessage("✅ Registration successful! Redirecting to login...");
+      setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
-      setMessage(err.message);
+      setError(err.message);
     }
   };
 
@@ -30,9 +31,7 @@ export default function Signup() {
           type="text"
           placeholder="Email"
           value={email}
-          onChange={function (e) {
-            setEmail(e.target.value);
-          }}
+          onChange={(e) => setEmail(e.target.value)}
           className="w-full px-4 py-2 border rounded"
           required
         />
@@ -40,9 +39,7 @@ export default function Signup() {
           type="password"
           placeholder="Password"
           value={password}
-          onChange={function (e) {
-            setPassword(e.target.value);
-          }}
+          onChange={(e) => setPassword(e.target.value)}
           className="w-full px-4 py-2 border rounded"
           required
         />
@@ -53,7 +50,9 @@ export default function Signup() {
           Register
         </button>
       </form>
-      {message && <p className="mt-2 text-center">{message}</p>}
+
+      {message && <p className="mt-2 text-green-600 text-sm">{message}</p>}
+      {error && <p className="mt-2 text-red-500 text-sm">{error}</p>}
     </div>
   );
 }

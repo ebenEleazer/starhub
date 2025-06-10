@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:5000");
+const socket = io("https://starhub-backend.onrender.com");
 
 export default function ChatRoom() {
   const { id } = useParams();
@@ -34,7 +34,7 @@ export default function ChatRoom() {
       formData.append("file", file);
 
       try {
-        const res = await fetch("http://localhost:5000/api/upload", {
+        const res = await fetch("https://starhub-backend.onrender.com/api/upload", {
           method: "POST",
           body: formData,
         });
@@ -57,7 +57,7 @@ export default function ChatRoom() {
   };
 
   const renderMessage = (msg, i) => {
-    if (msg.startsWith("http://localhost:5000/uploads/")) {
+    if (msg.startsWith("https://starhub-backend.onrender.com/uploads/")) {
       return <img key={i} src={msg} alt="media" className="max-w-xs rounded shadow" />;
     }
     return (

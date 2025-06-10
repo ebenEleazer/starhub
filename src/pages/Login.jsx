@@ -12,9 +12,8 @@ export default function Login() {
     e.preventDefault();
     try {
       const data = await loginUser(email, password);
-      const token = data.token;               // extract the string
-      localStorage.setItem("token", token);    // store it
-      navigate("/profile");                    // go to profile page
+      localStorage.setItem("token", data.token);
+      navigate("/profile");
     } catch (err) {
       setError(err.message);
     }
@@ -28,9 +27,7 @@ export default function Login() {
           type="text"
           placeholder="Email"
           value={email}
-          onChange={function (e) {
-            setEmail(e.target.value);
-          }}
+          onChange={(e) => setEmail(e.target.value)}
           className="w-full px-4 py-2 border rounded"
           required
         />
@@ -38,9 +35,7 @@ export default function Login() {
           type="password"
           placeholder="Password"
           value={password}
-          onChange={function (e) {
-            setPassword(e.target.value);
-          }}
+          onChange={(e) => setPassword(e.target.value)}
           className="w-full px-4 py-2 border rounded"
           required
         />
