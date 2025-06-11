@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { loginUser, getProfile } from "../api"; // make sure path is correct
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -12,35 +13,15 @@ export default function Login() {
     setError("");
 
     try {
-      // Step 1: Send login request
-      const res = await fetch("https://starhub-backend.onrender.com/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+      // Step 1: Login and get token
+      const loginData = await loginUser(email, password);
+      const token = loginData.token;
 
-      const data = await res.json();
+      localStorage.setItem("token", token);
 
-      if (!res.ok) {
-        throw new Error(data.error || "Login failed");
-      }
-
-      // Step 2: Store token
-      localStorage.setItem("token", data.token);
-
-      // Step 3: Fetch profile data
-      const profileRes = await fetch("https://starhub-backend.onrender.com/api/profile", {
-        headers: { Authorization: `Bearer ${data.token}` },
-      });
-
-      const profileData = await profileRes.json();
-
-      if (!profileRes.ok) {
-        throw new Error(profileData.error || "Failed to load profile");
-      }
-
-      // Step 4: Save profile in localStorage
-      localStorage.setItem("profile", JSON.stringify(profileData));
+      // Step 2: Fetch profile
+      const profile = await getProfile(token);
+      localStorage.setItem("profile", JSON.stringify(profile));
 
       navigate("/profile");
     } catch (err) {
