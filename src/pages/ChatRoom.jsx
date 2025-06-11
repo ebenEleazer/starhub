@@ -2,53 +2,43 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
 
-// 🟢 CONNECT TO PRODUCTION BACKEND
 const socket = io("https://starhub-backend.onrender.com");
 
 export default function ChatRoom() {
-  const { id } = useParams(); // channel name
+  const { id } = useParams(); // Channel ID
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [file, setFile] = useState(null);
   const scrollRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // 🔵 Load previous messages from backend (Supabase)
   useEffect(() => {
     fetch(`https://starhub-backend.onrender.com/api/messages/${id}`)
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data)) {
-          // Accept content as-is, whether text or image URL
-          setMessages(data.map((msg) => msg.content));
-        }
+        if (Array.isArray(data)) setMessages(data);
       })
       .catch((err) => console.error("Failed to load messages:", err));
   }, [id]);
 
-  // 🟣 Setup Socket.io listeners
   useEffect(() => {
     socket.emit("joinRoom", id);
 
-    const handleIncomingMessage = (msg) => {
-      const content = typeof msg === "object" && msg.message ? msg.message : msg;
-      setMessages((prev) => [...prev, content]);
+    const handleIncoming = (msg) => {
+      setMessages((prev) => [...prev, msg]);
     };
 
-    socket.on("chatMessage", handleIncomingMessage);
-
-    return () => {
-      socket.off("chatMessage", handleIncomingMessage);
-    };
+    socket.on("chatMessage", handleIncoming);
+    return () => socket.off("chatMessage", handleIncoming);
   }, [id]);
 
-  // 🔽 Auto-scroll to latest message
   useEffect(() => {
     scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight);
   }, [messages]);
 
-  // 📨 Handle send
   const handleSend = async () => {
+    const sender = "anonymous";
+
     if (file) {
       const formData = new FormData();
       formData.append("file", file);
@@ -59,8 +49,12 @@ export default function ChatRoom() {
           body: formData,
         });
         const data = await res.json();
+
         if (data.url) {
-          socket.emit("chatMessage", { room: id, message: data.url });
+          socket.emit("chatMessage", {
+            room: id,
+            message: `${sender}: ${data.url}`,
+          });
         }
       } catch (err) {
         console.error("Upload failed", err);
@@ -71,34 +65,26 @@ export default function ChatRoom() {
     }
 
     if (input.trim()) {
-      socket.emit("chatMessage", { room: id, message: input.trim() });
+      socket.emit("chatMessage", {
+        room: id,
+        message: `${sender}: ${input.trim()}`,
+      });
       setInput("");
     }
   };
 
-  // 🖼️ Render each message
   const renderMessage = (msg, i) => {
-    if (typeof msg === "string") {
-      if (msg.startsWith("http") && msg.includes("/uploads/")) {
-        return (
-          <img
-            key={i}
-            src={msg}
-            alt="Uploaded"
-            className="max-w-xs rounded shadow"
-          />
-        );
-      }
-      return (
-        <div key={i} className="bg-gray-100 rounded px-3 py-1 text-sm">
-          {msg}
-        </div>
-      );
-    }
+    const isImage = typeof msg.message === "string" && msg.message.includes("/uploads/");
+    const [sender, rest] = msg.message.split(": ");
 
     return (
-      <div key={i} className="bg-red-100 text-red-700 px-3 py-1 text-sm rounded">
-        [Unsupported message format]
+      <div key={i} className="flex flex-col items-start space-y-1">
+        <span className="text-xs text-gray-500">{sender}</span>
+        {isImage ? (
+          <img src={rest} alt="uploaded" className="max-w-xs rounded" />
+        ) : (
+          <div className="bg-gray-100 rounded px-3 py-1 text-sm">{rest}</div>
+        )}
       </div>
     );
   };
