@@ -29,7 +29,12 @@ export default function ChatRoom() {
   useEffect(() => {
     socket.emit("joinRoom", id);
     socket.on("chatMessage", (msg) => {
-      setMessages((prev) => [...prev, msg]);
+      // If backend returns { message: "...", room: "...", created_at: "..." }
+      if (typeof msg === "object" && msg.message) {
+        setMessages((prev) => [...prev, msg.message]);
+      } else {
+        setMessages((prev) => [...prev, msg]);
+      }
     });
 
     return () => {
@@ -73,23 +78,32 @@ export default function ChatRoom() {
 
   // 🖼️ Render each message
   const renderMessage = (msg, i) => {
-  if (typeof msg === "string" && msg.includes("/uploads/") && msg.startsWith("http")) {
-    return (
-      <img
-        key={i}
-        src={msg}
-        alt="media"
-        className="max-w-xs rounded shadow"
-      />
-    );
-  }
+    if (typeof msg === "string") {
+      if (msg.includes("/uploads/") && msg.startsWith("http")) {
+        return (
+          <img
+            key={i}
+            src={msg}
+            alt="media"
+            className="max-w-xs rounded shadow"
+          />
+        );
+      }
 
-  return (
-    <div key={i} className="bg-gray-100 rounded px-3 py-1 text-sm">
-      {msg}
-    </div>
-  );
-};
+      return (
+        <div key={i} className="bg-gray-100 rounded px-3 py-1 text-sm">
+          {msg}
+        </div>
+      );
+    }
+
+    // Safe fallback for unexpected formats
+    return (
+      <div key={i} className="bg-red-100 text-red-700 px-3 py-1 text-sm rounded">
+        [Unsupported message format]
+      </div>
+    );
+  };
 
   return (
     <div className="flex flex-col items-center min-h-screen p-4">
