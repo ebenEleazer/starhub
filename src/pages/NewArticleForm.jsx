@@ -1,18 +1,49 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function NewArticleForm() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [error, setError] = useState("");
+  const [profile, setProfile] = useState(null);
   const navigate = useNavigate();
+
+  // Fetch user profile to get author_email
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("You must be logged in to post an article.");
+        return;
+      }
+
+      try {
+        const res = await fetch("https://starhub-backend.onrender.com/api/profile", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await res.json();
+        if (res.ok) {
+          setProfile(data);
+        } else {
+          setError(data.error || "Failed to fetch profile");
+        }
+      } catch (err) {
+        console.error("Error submitting article:",err);
+        setError("Failed to fetch profile");
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
     const token = localStorage.getItem("token");
-    if (!token) {
+    if (!token || !profile?.email) {
       setError("You must be logged in to post an article.");
       return;
     }
@@ -22,13 +53,18 @@ export default function NewArticleForm() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ title, content })
+        body: JSON.stringify({
+          title,
+          content,
+          author_email: profile.email,
+        }),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const data = await res.json();
         throw new Error(data.error || "Failed to publish article");
       }
 
