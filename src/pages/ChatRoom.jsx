@@ -73,23 +73,23 @@ export default function ChatRoom() {
 
   // 🖼️ Render each message
   const renderMessage = (msg, i) => {
-    if (msg.includes("/uploads/") && msg.startsWith("http")) {
-      return (
-        <img
-          key={i}
-          src={msg}
-          alt="media"
-          className="max-w-xs rounded shadow"
-        />
-      );
-    }
-
+  if (typeof msg === "string" && msg.includes("/uploads/") && msg.startsWith("http")) {
     return (
-      <div key={i} className="bg-gray-100 rounded px-3 py-1 text-sm">
-        {msg}
-      </div>
+      <img
+        key={i}
+        src={msg}
+        alt="media"
+        className="max-w-xs rounded shadow"
+      />
     );
-  };
+  }
+
+  return (
+    <div key={i} className="bg-gray-100 rounded px-3 py-1 text-sm">
+      {msg}
+    </div>
+  );
+};
 
   return (
     <div className="flex flex-col items-center min-h-screen p-4">
