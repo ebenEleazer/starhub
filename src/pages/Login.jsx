@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { loginUser } from "../api";
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
@@ -8,11 +7,41 @@ export default function Login() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
+
     try {
-      const data = await loginUser(email, password);
+      // Step 1: Send login request
+      const res = await fetch("https://starhub-backend.onrender.com/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Login failed");
+      }
+
+      // Step 2: Store token
       localStorage.setItem("token", data.token);
+
+      // Step 3: Fetch profile data
+      const profileRes = await fetch("https://starhub-backend.onrender.com/api/profile", {
+        headers: { Authorization: `Bearer ${data.token}` },
+      });
+
+      const profileData = await profileRes.json();
+
+      if (!profileRes.ok) {
+        throw new Error(profileData.error || "Failed to load profile");
+      }
+
+      // Step 4: Save profile in localStorage
+      localStorage.setItem("profile", JSON.stringify(profileData));
+
       navigate("/profile");
     } catch (err) {
       setError(err.message);
@@ -20,29 +49,29 @@ export default function Login() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
+    <div className="max-w-md mx-auto mt-10 p-6 border rounded shadow bg-white">
       <h1 className="text-2xl font-bold mb-4">Login</h1>
-      <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-4">
+      <form onSubmit={handleLogin} className="space-y-4">
         <input
-          type="text"
+          type="email"
           placeholder="Email"
+          className="w-full p-2 border rounded"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-4 py-2 border rounded"
           required
         />
         <input
           type="password"
           placeholder="Password"
+          className="w-full p-2 border rounded"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-4 py-2 border rounded"
           required
         />
         {error && <p className="text-red-500 text-sm">{error}</p>}
         <button
           type="submit"
-          className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600"
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
           Login
         </button>

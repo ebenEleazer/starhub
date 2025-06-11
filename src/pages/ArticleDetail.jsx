@@ -7,7 +7,7 @@ export default function ArticleDetail() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("https://starhub-backend.onrender.com/api/articles/" + id)
+    fetch(`https://starhub-backend.onrender.com/api/articles/${id}`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch article");
         return res.json();
@@ -22,8 +22,8 @@ export default function ArticleDetail() {
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-4">{article.title}</h1>
-      <p className="text-gray-700 whitespace-pre-wrap">{article.content}</p>
-      <Link to="/articles" className="text-blue-600 underline mt-4 block">
+      <p className="text-gray-700 whitespace-pre-wrap mb-6">{article.content}</p>
+      <Link to="/articles" className="text-blue-600 underline">
         ← Back to Articles
       </Link>
     </div>

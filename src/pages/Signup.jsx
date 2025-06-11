@@ -1,58 +1,86 @@
 import { useState } from "react";
-import { registerUser } from "../api";
 import { useNavigate } from "react-router-dom";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
+  const [name, setName] = useState("");
+  const [avatar, setAvatar] = useState("");
+  const [bio, setBio] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
-    setMessage("");
     setError("");
 
     try {
-      await registerUser(email, password);
-      setMessage("✅ Registration successful! Redirecting to login...");
-      setTimeout(() => navigate("/login"), 2000);
+      const res = await fetch("https://starhub-backend.onrender.com/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, name, avatar, bio })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Signup failed");
+
+      navigate("/login");
     } catch (err) {
       setError(err.message);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <h1 className="text-2xl font-bold mb-4">Signup</h1>
-      <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-4">
+    <div className="max-w-md mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-4">Create Account</h1>
+      <form onSubmit={handleSignup} className="space-y-4">
         <input
-          type="text"
+          type="email"
           placeholder="Email"
+          className="w-full p-2 border rounded"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-4 py-2 border rounded"
           required
         />
         <input
           type="password"
           placeholder="Password"
+          className="w-full p-2 border rounded"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-4 py-2 border rounded"
           required
         />
+        <input
+          type="text"
+          placeholder="Full Name"
+          className="w-full p-2 border rounded"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <input
+          type="url"
+          placeholder="Avatar URL"
+          className="w-full p-2 border rounded"
+          value={avatar}
+          onChange={(e) => setAvatar(e.target.value)}
+        />
+        <textarea
+          placeholder="Bio"
+          className="w-full p-2 border rounded"
+          rows="3"
+          value={bio}
+          onChange={(e) => setBio(e.target.value)}
+        ></textarea>
+
+        {error && <p className="text-red-500">{error}</p>}
+
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+          className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
         >
-          Register
+          Sign Up
         </button>
       </form>
-
-      {message && <p className="mt-2 text-green-600 text-sm">{message}</p>}
-      {error && <p className="mt-2 text-red-500 text-sm">{error}</p>}
     </div>
   );
 }

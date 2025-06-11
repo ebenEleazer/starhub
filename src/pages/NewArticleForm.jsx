@@ -11,11 +11,20 @@ export default function NewArticleForm() {
     e.preventDefault();
     setError("");
 
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("You must be logged in to post an article.");
+      return;
+    }
+
     try {
       const res = await fetch("https://starhub-backend.onrender.com/api/articles", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, content }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ title, content })
       });
 
       if (!res.ok) {

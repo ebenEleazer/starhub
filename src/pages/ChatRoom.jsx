@@ -6,25 +6,43 @@ import { io } from "socket.io-client";
 const socket = io("https://starhub-backend.onrender.com");
 
 export default function ChatRoom() {
-  const { id } = useParams();
+  const { id } = useParams(); // channel name
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [file, setFile] = useState(null);
   const scrollRef = useRef(null);
   const fileInputRef = useRef(null);
 
+  // 🔵 Load previous messages from backend (Supabase)
+  useEffect(() => {
+    fetch(`https://starhub-backend.onrender.com/api/messages/${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setMessages(data.map((msg) => msg.content));
+        }
+      })
+      .catch((err) => console.error("Failed to load messages:", err));
+  }, [id]);
+
+  // 🟣 Setup Socket.io listeners
   useEffect(() => {
     socket.emit("joinRoom", id);
     socket.on("chatMessage", (msg) => {
       setMessages((prev) => [...prev, msg]);
     });
-    return () => socket.off("chatMessage");
+
+    return () => {
+      socket.off("chatMessage");
+    };
   }, [id]);
 
+  // 🔽 Auto-scroll when messages update
   useEffect(() => {
     scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight);
   }, [messages]);
 
+  // 📨 Handle send
   const handleSend = async () => {
     if (file) {
       const formData = new FormData();
@@ -53,8 +71,8 @@ export default function ChatRoom() {
     }
   };
 
+  // 🖼️ Render each message
   const renderMessage = (msg, i) => {
-    // 🟢 NOW SUPPORT BOTH LOCALHOST + PRODUCTION IMAGE URLs
     if (msg.includes("/uploads/") && msg.startsWith("http")) {
       return (
         <img
