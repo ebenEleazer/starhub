@@ -11,6 +11,7 @@ export default function ChatRoom() {
   const [file, setFile] = useState(null);
   const scrollRef = useRef(null);
   const fileInputRef = useRef(null);
+  const sender = "anonymous"; // You can replace this with the logged-in user's name if available
 
   useEffect(() => {
     fetch(`https://starhub-backend.onrender.com/api/messages/${id}`)
@@ -37,8 +38,6 @@ export default function ChatRoom() {
   }, [messages]);
 
   const handleSend = async () => {
-    const sender = "anonymous";
-
     if (file) {
       const formData = new FormData();
       formData.append("file", file);
@@ -53,7 +52,8 @@ export default function ChatRoom() {
         if (data.url) {
           socket.emit("chatMessage", {
             room: id,
-            message: `${sender}: ${data.url}`,
+            sender,
+            message: data.url,
           });
         }
       } catch (err) {
@@ -67,7 +67,8 @@ export default function ChatRoom() {
     if (input.trim()) {
       socket.emit("chatMessage", {
         room: id,
-        message: `${sender}: ${input.trim()}`,
+        sender,
+        message: input.trim(),
       });
       setInput("");
     }
@@ -75,15 +76,15 @@ export default function ChatRoom() {
 
   const renderMessage = (msg, i) => {
     const isImage = typeof msg.message === "string" && msg.message.includes("/uploads/");
-    const [sender, rest] = msg.message.split(": ");
+    const senderName = msg.sender || "unknown";
 
     return (
       <div key={i} className="flex flex-col items-start space-y-1">
-        <span className="text-xs text-gray-500">{sender}</span>
+        <span className="text-xs text-gray-500">{senderName}</span>
         {isImage ? (
-          <img src={rest} alt="uploaded" className="max-w-xs rounded" />
+          <img src={msg.message} alt="uploaded" className="max-w-xs rounded" />
         ) : (
-          <div className="bg-gray-100 rounded px-3 py-1 text-sm">{rest}</div>
+          <div className="bg-gray-100 rounded px-3 py-1 text-sm">{msg.message}</div>
         )}
       </div>
     );
