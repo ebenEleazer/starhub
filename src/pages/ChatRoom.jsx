@@ -19,6 +19,7 @@ export default function ChatRoom() {
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
+          // Accept content as-is, whether text or image URL
           setMessages(data.map((msg) => msg.content));
         }
       })
@@ -28,21 +29,20 @@ export default function ChatRoom() {
   // 🟣 Setup Socket.io listeners
   useEffect(() => {
     socket.emit("joinRoom", id);
-    socket.on("chatMessage", (msg) => {
-      // If backend returns { message: "...", room: "...", created_at: "..." }
-      if (typeof msg === "object" && msg.message) {
-        setMessages((prev) => [...prev, msg.message]);
-      } else {
-        setMessages((prev) => [...prev, msg]);
-      }
-    });
+
+    const handleIncomingMessage = (msg) => {
+      const content = typeof msg === "object" && msg.message ? msg.message : msg;
+      setMessages((prev) => [...prev, content]);
+    };
+
+    socket.on("chatMessage", handleIncomingMessage);
 
     return () => {
-      socket.off("chatMessage");
+      socket.off("chatMessage", handleIncomingMessage);
     };
   }, [id]);
 
-  // 🔽 Auto-scroll when messages update
+  // 🔽 Auto-scroll to latest message
   useEffect(() => {
     scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight);
   }, [messages]);
@@ -71,7 +71,7 @@ export default function ChatRoom() {
     }
 
     if (input.trim()) {
-      socket.emit("chatMessage", { room: id, message: input });
+      socket.emit("chatMessage", { room: id, message: input.trim() });
       setInput("");
     }
   };
@@ -79,17 +79,16 @@ export default function ChatRoom() {
   // 🖼️ Render each message
   const renderMessage = (msg, i) => {
     if (typeof msg === "string") {
-      if (msg.includes("/uploads/") && msg.startsWith("http")) {
+      if (msg.startsWith("http") && msg.includes("/uploads/")) {
         return (
           <img
             key={i}
             src={msg}
-            alt="media"
+            alt="Uploaded"
             className="max-w-xs rounded shadow"
           />
         );
       }
-
       return (
         <div key={i} className="bg-gray-100 rounded px-3 py-1 text-sm">
           {msg}
@@ -97,7 +96,6 @@ export default function ChatRoom() {
       );
     }
 
-    // Safe fallback for unexpected formats
     return (
       <div key={i} className="bg-red-100 text-red-700 px-3 py-1 text-sm rounded">
         [Unsupported message format]
