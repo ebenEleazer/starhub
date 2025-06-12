@@ -5,78 +5,45 @@ export default function ArticleList() {
   const [articles, setArticles] = useState([]);
 
   useEffect(() => {
-    fetch("/api/articles")
-      .then((res) => res.json())
-      .then(async (articles) => {
-        const updatedArticles = await Promise.all(
-          articles.map(async (article) => {
-            const res = await fetch(`/api/articles/${article.id}/likes`, {
-              headers: {
-                Authorization: "Bearer " + localStorage.getItem("token"),
-              },
-            });
-            const likeData = await res.json();
-            return { ...article, likes: likeData.count, liked: likeData.liked };
-          })
+    const fetchArticles = async () => {
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/api/articles`
         );
-        setArticles(updatedArticles);
-      });
+        if (!res.ok) throw new Error("Failed to fetch articles");
+        const data = await res.json();
+        setArticles(data);
+      } catch (err) {
+        console.error("Error loading articles:", err.message);
+      }
+    };
+
+    fetchArticles();
   }, []);
 
-  const toggleLike = async (articleId) => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    const res = await fetch(`/api/articles/${articleId}/like`, {
-      method: "POST",
-      headers: { Authorization: "Bearer " + token },
-    });
-    const data = await res.json();
-
-    setArticles((prev) =>
-      prev.map((a) =>
-        a.id === articleId
-          ? {
-              ...a,
-              liked: data.liked,
-              likes: a.likes + (data.liked ? 1 : -1),
-            }
-          : a
-      )
-    );
-  };
-
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-6 text-space-light">
-      <h1 className="text-4xl font-bold mb-4 text-white drop-shadow glow">Articles</h1>
-      {articles.map((article) => (
-        <div
-          key={article.id}
-          className="card flex justify-between items-center border border-space-accent"
-        >
-          <div>
-            <Link
-              to={`/articles/${article.id}`}
-              className="text-xl font-semibold text-space-accent hover:underline"
-            >
-              {article.title}
-            </Link>
-            <p className="text-sm mt-1 text-space-light">
-              {article.likes} like{article.likes !== 1 ? "s" : ""}
-            </p>
-          </div>
-          <button
-            onClick={() => toggleLike(article.id)}
-            className={`px-4 py-2 rounded-full transition ${
-              article.liked
-                ? "bg-red-500 text-white shadow-glow"
-                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-            }`}
-          >
-            {article.liked ? "♥ Liked" : "♡ Like"}
-          </button>
-        </div>
-      ))}
+    <div className="min-h-screen bg-space-dark text-space-light p-6 font-futuristic">
+      <h1 className="text-4xl text-space-accent mb-6">Articles</h1>
+      <Link
+        to="/articles/new"
+        className="inline-block mb-4 px-4 py-2 bg-space-accent text-white rounded shadow-glow hover:bg-indigo-500"
+      >
+        + New Article
+      </Link>
+      {articles.length === 0 ? (
+        <p>No articles yet.</p>
+      ) : (
+        <ul className="space-y-4">
+          {articles.map((article) => (
+            <li key={article.id} className="p-4 bg-space-light text-black rounded shadow">
+              <Link to={`/articles/${article.id}`} className="text-xl font-semibold text-space-dark hover:underline">
+                {article.title}
+              </Link>
+              <p className="text-sm text-gray-600">By {article.author_name || "Unknown"}</p>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
