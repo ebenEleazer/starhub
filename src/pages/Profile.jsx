@@ -62,11 +62,19 @@ export default function Profile() {
           {profile.bio && <p className="text-gray-300 mt-2 whitespace-pre-wrap">{profile.bio}</p>}
         </div>
 
+        <div className="flex justify-center mt-4">
+          <Link
+            to="/settings"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded text-sm"
+          >
+            ⚙️ Settings
+          </Link>
+        </div>
+
         <div className="flex justify-around mt-6 text-sm text-blue-300">
           <Link to="/" className="hover:underline">Home</Link>
           <Link to="/channels" className="hover:underline">Channels</Link>
           <Link to="/articles" className="hover:underline">Articles</Link>
-          <Link to="/settings" className="hover:underline">Settings</Link>
         </div>
       </div>
     </div>

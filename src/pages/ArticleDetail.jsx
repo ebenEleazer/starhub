@@ -1,60 +1,61 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import useRequireAuth from "../hooks/useRequireAuth";
+import { useParams } from "react-router-dom";
 
 export default function ArticleDetail() {
-  useRequireAuth();
   const { id } = useParams();
   const [article, setArticle] = useState(null);
-  const [error, setError] = useState("");
+  const [likes, setLikes] = useState(0);
+  const [liked, setLiked] = useState(false);
 
   useEffect(() => {
-    fetch(`https://starhub-backend.onrender.com/api/articles/${id}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch article");
-        return res.json();
-      })
-      .then((data) => setArticle(data))
-      .catch((err) => setError(err.message));
+    fetch(`/api/articles/${id}`)
+      .then((res) => res.json())
+      .then(setArticle);
+
+    fetch(`/api/articles/${id}/likes`, {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setLikes(data.count);
+        setLiked(data.liked);
+      });
   }, [id]);
 
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black text-red-400">
-        <p>Error: {error}</p>
-      </div>
-    );
-  }
+  const toggleLike = async () => {
+    const res = await fetch(`/api/articles/${id}/like`, {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    });
+    const data = await res.json();
+    setLiked(data.liked);
+    setLikes((prev) => prev + (data.liked ? 1 : -1));
+  };
 
-  if (!article) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black text-gray-400">
-        <p>Loading article...</p>
-      </div>
-    );
-  }
+  if (!article) return <div className="p-6 text-space-light">Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-blue-950 to-black text-white p-6">
-      <div className="max-w-3xl mx-auto">
-        <Link
-          to="/articles"
-          className="text-indigo-400 hover:underline text-sm mb-6 inline-block"
+    <div className="p-6 max-w-3xl mx-auto text-space-light">
+      <h1 className="text-4xl font-bold mb-4 text-white drop-shadow glow">{article.title}</h1>
+      <p className="whitespace-pre-line text-lg mb-6">{article.content}</p>
+      <div className="flex items-center gap-4">
+        <button
+          onClick={toggleLike}
+          className={`px-5 py-2 rounded-full transition ${
+            liked
+              ? "bg-red-500 text-white shadow-glow"
+              : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+          }`}
         >
-          ← Back to Articles
-        </Link>
-
-        <h1 className="text-4xl font-bold text-white mb-4 drop-shadow">
-          {article.title}
-        </h1>
-
-        <p className="text-sm text-gray-400 mb-6">
-          Posted by: {article.author_email || "Unknown"}
-        </p>
-
-        <div className="bg-gray-900 border border-gray-700 p-6 rounded-xl shadow text-gray-200 whitespace-pre-wrap leading-relaxed">
-          {article.content}
-        </div>
+          {liked ? "♥ Liked" : "♡ Like"}
+        </button>
+        <span className="text-sm text-space-light">
+          {likes} like{likes !== 1 ? "s" : ""}
+        </span>
       </div>
     </div>
   );

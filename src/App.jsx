@@ -10,6 +10,7 @@ import NewArticleForm from "./pages/NewArticleForm.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import Home from "./pages/Home.jsx"; // ✅ Import Home
 import UserProfile from "./pages/UserProfile"; // at the top with other imports
+import Settings from "./pages/Settings";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <Route path="/articles/:id" element={<ArticleDetail />} />
         <Route path="/articles/new" element={<NewArticleForm />} />
         <Route path="/users/:id" element={<UserProfile />} />
+        <Route path="/settings" element={<Settings />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>

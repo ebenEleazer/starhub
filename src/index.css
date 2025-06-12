@@ -1,3 +1,37 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap');
+
+/* === Base layout === */
+body {
+  @apply bg-space-dark text-space-light font-futuristic;
+  background-image: url('galaxy.jpeg');
+  background-size: cover;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-position: center;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* === Scrollbar styling === */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: theme('colors.space.accent');
+  border-radius: 4px;
+}
+
+/* === Optional reusable card style === */
+.card {
+  @apply p-4 md:p-6 rounded-2xl backdrop-blur-md shadow-glow;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* === Button style override (optional) === */
+.btn-primary {
+  @apply bg-space.accent text-white px-4 py-2 rounded-lg font-semibold shadow-md transition hover:shadow-glow hover:scale-105;
+}
