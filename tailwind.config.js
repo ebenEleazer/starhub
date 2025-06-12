@@ -4,9 +4,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        "space-dark": "#0b0f2b",
-        "space-accent": "#5a5df0",
-        "space-light": "#d1d5db",
+        "space-dark": "#0b0f2b",     // Background
+        "space-accent": "#5a5df0",   // Accent/highlight
+        "space-light": "#d1d5db",    // Light gray text
       },
       backgroundImage: {
         galaxy: "url('/galaxy.jpg')",
