@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import useRequireAuth from "../hooks/useRequireAuth";
 
 export default function NewArticleForm() {
-  useRequireAuth();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [error, setError] = useState("");

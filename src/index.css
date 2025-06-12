@@ -7,7 +7,7 @@
 /* === Base layout === */
 body {
   @apply bg-space-dark text-space-light font-futuristic;
-  background-image: url('/galaxy.jpg');
+  background-image: url('/galaxy.jpeg');
   background-size: cover;
   background-attachment: fixed;
   background-repeat: no-repeat;
