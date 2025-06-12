@@ -1,12 +1,10 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
-import useRequireAuth from "../hooks/useRequireAuth";
 
 const socket = io("https://starhub-backend.onrender.com");
 
 export default function ChatRoom() {
-  useRequireAuth();
   const { id } = useParams();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");

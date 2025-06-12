@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import useRequireAuth from "../hooks/useRequireAuth";
 
 export default function Profile() {
-  useRequireAuth();
   const [profile, setProfile] = useState(null);
   const [error, setError] = useState("");
   const navigate = useNavigate();

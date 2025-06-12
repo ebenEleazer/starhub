@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useRequireAuth from "../hooks/useRequireAuth";
 
 export default function Channels() {
-  useRequireAuth();
   const [channels, setChannels] = useState([]);
   const [error, setError] = useState("");
   const navigate = useNavigate();
