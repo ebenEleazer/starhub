@@ -1,17 +1,33 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
+import useRequireAuth from "../hooks/useRequireAuth";
 
 const socket = io("https://starhub-backend.onrender.com");
 
 export default function ChatRoom() {
-  const { id } = useParams(); // Channel ID
+  useRequireAuth();
+  const { id } = useParams(); // Channel name
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [file, setFile] = useState(null);
   const scrollRef = useRef(null);
   const fileInputRef = useRef(null);
-  const sender = "anonymous"; // You can replace this with the logged-in user's name if available
+  const [username, setUsername] = useState("anonymous");
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    fetch("https://starhub-backend.onrender.com/api/profile", {
+      headers: { Authorization: "Bearer " + token },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.username) setUsername(data.username);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     fetch(`https://starhub-backend.onrender.com/api/messages/${id}`)
@@ -38,6 +54,8 @@ export default function ChatRoom() {
   }, [messages]);
 
   const handleSend = async () => {
+    const token = localStorage.getItem("token");
+
     if (file) {
       const formData = new FormData();
       formData.append("file", file);
@@ -45,6 +63,7 @@ export default function ChatRoom() {
       try {
         const res = await fetch("https://starhub-backend.onrender.com/api/upload", {
           method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
           body: formData,
         });
         const data = await res.json();
@@ -52,7 +71,7 @@ export default function ChatRoom() {
         if (data.url) {
           socket.emit("chatMessage", {
             room: id,
-            sender,
+            sender: username,
             message: data.url,
           });
         }
@@ -67,7 +86,7 @@ export default function ChatRoom() {
     if (input.trim()) {
       socket.emit("chatMessage", {
         room: id,
-        sender,
+        sender: username,
         message: input.trim(),
       });
       setInput("");
@@ -79,33 +98,42 @@ export default function ChatRoom() {
     const senderName = msg.sender || "unknown";
 
     return (
-      <div key={i} className="flex flex-col items-start space-y-1">
-        <span className="text-xs text-gray-500">{senderName}</span>
+      <div key={i} className="flex flex-col space-y-1">
+        <span className="text-xs text-indigo-400">@{senderName}</span>
         {isImage ? (
-          <img src={msg.message} alt="uploaded" className="max-w-xs rounded" />
+          <img
+            src={msg.message}
+            alt="uploaded"
+            className="max-w-xs rounded shadow border border-gray-700"
+          />
         ) : (
-          <div className="bg-gray-100 rounded px-3 py-1 text-sm">{msg.message}</div>
+          <div className="bg-gray-800 text-white rounded px-3 py-2 text-sm w-fit max-w-sm">
+            {msg.message}
+          </div>
         )}
       </div>
     );
   };
 
   return (
-    <div className="flex flex-col items-center min-h-screen p-4">
-      <h1 className="text-2xl font-bold mb-4">Channel: {id}</h1>
+    <div className="min-h-screen bg-gradient-to-b from-black via-blue-950 to-black text-white flex flex-col items-center p-6">
+      <h1 className="text-3xl font-bold mb-1 drop-shadow">#{id}</h1>
+      <p className="text-sm text-gray-400 mb-6 italic">
+        Real-time communication in the {id} channel
+      </p>
 
       <div
         ref={scrollRef}
-        className="w-full max-w-xl h-72 overflow-y-auto border p-4 rounded bg-white space-y-2 mb-4"
+        className="w-full max-w-2xl h-96 overflow-y-auto bg-gray-900 border border-gray-700 rounded-lg p-4 space-y-4 mb-6"
       >
         {messages.map((msg, i) => renderMessage(msg, i))}
       </div>
 
-      <div className="flex items-center w-full max-w-xl space-x-2">
+      <div className="flex flex-col sm:flex-row items-center gap-2 w-full max-w-2xl">
         <input
           type="text"
-          className="flex-1 border rounded px-3 py-2"
-          placeholder="Type a message..."
+          className="flex-1 bg-gray-800 text-white p-2 rounded border border-gray-600"
+          placeholder="Type your message..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
         />
@@ -113,11 +141,11 @@ export default function ChatRoom() {
           type="file"
           ref={fileInputRef}
           onChange={(e) => setFile(e.target.files[0])}
-          className="text-sm"
+          className="text-sm text-white"
         />
         <button
           onClick={handleSend}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded text-white font-medium"
         >
           Send
         </button>

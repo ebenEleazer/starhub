@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import useRequireAuth from "../hooks/useRequireAuth";
 
 export default function ArticleDetail() {
+  useRequireAuth();
   const { id } = useParams();
   const [article, setArticle] = useState(null);
   const [error, setError] = useState("");
@@ -16,16 +18,44 @@ export default function ArticleDetail() {
       .catch((err) => setError(err.message));
   }, [id]);
 
-  if (error) return <p className="p-6 text-red-500">{error}</p>;
-  if (!article) return <p className="p-6">Loading...</p>;
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black text-red-400">
+        <p>Error: {error}</p>
+      </div>
+    );
+  }
+
+  if (!article) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black text-gray-400">
+        <p>Loading article...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-4">{article.title}</h1>
-      <p className="text-gray-700 whitespace-pre-wrap mb-6">{article.content}</p>
-      <Link to="/articles" className="text-blue-600 underline">
-        ← Back to Articles
-      </Link>
+    <div className="min-h-screen bg-gradient-to-b from-black via-blue-950 to-black text-white p-6">
+      <div className="max-w-3xl mx-auto">
+        <Link
+          to="/articles"
+          className="text-indigo-400 hover:underline text-sm mb-6 inline-block"
+        >
+          ← Back to Articles
+        </Link>
+
+        <h1 className="text-4xl font-bold text-white mb-4 drop-shadow">
+          {article.title}
+        </h1>
+
+        <p className="text-sm text-gray-400 mb-6">
+          Posted by: {article.author_email || "Unknown"}
+        </p>
+
+        <div className="bg-gray-900 border border-gray-700 p-6 rounded-xl shadow text-gray-200 whitespace-pre-wrap leading-relaxed">
+          {article.content}
+        </div>
+      </div>
     </div>
   );
 }

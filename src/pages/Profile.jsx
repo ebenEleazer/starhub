@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import useRequireAuth from "../hooks/useRequireAuth";
 
 export default function Profile() {
+  useRequireAuth();
   const [profile, setProfile] = useState(null);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -26,30 +28,47 @@ export default function Profile() {
   }, [navigate]);
 
   if (error) {
-    return (
-      <div className="p-6 text-red-500">
-        Error: {error}
-      </div>
-    );
+    return <div className="p-6 text-red-500">Error: {error}</div>;
   }
 
   if (!profile) {
-    return <div className="p-6">Loading...</div>;
+    return <div className="p-6 text-white">Loading...</div>;
   }
 
   return (
-    <div className="p-6 max-w-xl mx-auto bg-white shadow rounded">
-      <h1 className="text-3xl font-bold mb-4">My Profile</h1>
-      {profile.avatar && (
-        <img
-          src={profile.avatar}
-          alt="Avatar"
-          className="w-24 h-24 rounded-full mb-4 object-cover"
-        />
-      )}
-      <p className="text-lg"><strong>Name:</strong> {profile.name}</p>
-      <p className="text-lg"><strong>Email:</strong> {profile.email}</p>
-      <p className="mt-2 text-gray-700 whitespace-pre-wrap">{profile.bio}</p>
+    <div className="min-h-screen bg-gradient-to-b from-blue-900 to-black text-white p-6">
+      <header className="text-center mb-6">
+        <h1 className="text-4xl font-bold text-white drop-shadow">StarHub</h1>
+        <p className="text-sm italic text-white opacity-80">Connecting Space Enthusiasts Across the Universe</p>
+      </header>
+
+      <div className="max-w-xl mx-auto bg-white/10 backdrop-blur-sm rounded-xl p-6 shadow-lg">
+        <h2 className="text-2xl font-bold mb-4 text-center">My Profile</h2>
+
+        {profile.avatar_url && (
+          <div className="flex justify-center mb-4">
+            <img
+              src={profile.avatar_url}
+              alt="Avatar"
+              className="w-28 h-28 rounded-full object-cover border-4 border-blue-500"
+            />
+          </div>
+        )}
+
+        <div className="space-y-2 text-center">
+          <p><strong>Username:</strong> {profile.username}</p>
+          {profile.name && <p><strong>Name:</strong> {profile.name}</p>}
+          <p><strong>Email:</strong> {profile.email}</p>
+          {profile.bio && <p className="text-gray-300 mt-2 whitespace-pre-wrap">{profile.bio}</p>}
+        </div>
+
+        <div className="flex justify-around mt-6 text-sm text-blue-300">
+          <Link to="/" className="hover:underline">Home</Link>
+          <Link to="/channels" className="hover:underline">Channels</Link>
+          <Link to="/articles" className="hover:underline">Articles</Link>
+          <Link to="/settings" className="hover:underline">Settings</Link>
+        </div>
+      </div>
     </div>
   );
 }

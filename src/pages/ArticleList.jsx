@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import useRequireAuth from "../hooks/useRequireAuth";
 
 export default function ArticleList() {
+  useRequireAuth();
   const [articles, setArticles] = useState([]);
   const [error, setError] = useState("");
 
@@ -23,45 +25,50 @@ export default function ArticleList() {
   }, []);
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <h1 className="text-3xl font-bold mb-4">Articles</h1>
+    <div className="min-h-screen bg-gradient-to-b from-black via-blue-950 to-black text-white p-6">
+      <div className="max-w-3xl mx-auto">
+        <header className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-white drop-shadow">Articles</h1>
+          <Link
+            to="/articles/new"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded shadow"
+          >
+            + New Article
+          </Link>
+        </header>
 
-      <Link
-        to="/articles/new"
-        className="inline-block bg-blue-600 text-white px-4 py-2 rounded mb-4 hover:bg-blue-700"
-      >
-        + New Article
-      </Link>
+        {error && (
+          <div className="bg-red-800 text-red-200 px-4 py-2 rounded mb-4">
+            Error: {error}
+          </div>
+        )}
 
-      {error && (
-        <p className="text-red-500 mb-4">Error: {error}</p>
-      )}
-
-      {articles.length === 0 ? (
-        <p className="text-gray-500">No articles yet.</p>
-      ) : (
-        <ul className="space-y-4">
-          {articles.map((article) => (
-            <li
-              key={article.id}
-              className="border p-4 rounded shadow bg-white hover:shadow-md transition"
-            >
-              <Link
-                to={`/articles/${article.id}`}
-                className="text-xl font-semibold text-indigo-700 hover:underline"
+        {articles.length === 0 ? (
+          <p className="text-gray-400 italic text-center mt-10">No articles have been posted yet.</p>
+        ) : (
+          <ul className="space-y-6">
+            {articles.map((article) => (
+              <li
+                key={article.id}
+                className="bg-gray-900 border border-gray-700 p-4 rounded-lg shadow hover:shadow-lg transition"
               >
-                {article.title}
-              </Link>
-              <p className="text-gray-600 mt-1">
-                {article.content.slice(0, 100)}...
-              </p>
-              <p className="text-sm text-gray-400 mt-2">
-                Posted by: {article.author_email || "Unknown"}
-              </p>
-            </li>
-          ))}
-        </ul>
-      )}
+                <Link
+                  to={`/articles/${article.id}`}
+                  className="text-2xl font-semibold text-indigo-400 hover:underline"
+                >
+                  {article.title}
+                </Link>
+                <p className="text-gray-300 mt-2">
+                  {article.content.slice(0, 120)}{article.content.length > 120 && "..."}
+                </p>
+                <p className="text-sm text-gray-500 mt-3">
+                  Posted by: {article.author_email || "Unknown"}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

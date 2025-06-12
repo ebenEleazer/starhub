@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginUser, getProfile } from "../api"; // make sure path is correct
+import { loginUser, getProfile } from "../api"; // make sure the path is correct
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -13,13 +13,11 @@ export default function Login() {
     setError("");
 
     try {
-      // Step 1: Login and get token
       const loginData = await loginUser(email, password);
       const token = loginData.token;
 
       localStorage.setItem("token", token);
 
-      // Step 2: Fetch profile
       const profile = await getProfile(token);
       localStorage.setItem("profile", JSON.stringify(profile));
 
@@ -30,33 +28,40 @@ export default function Login() {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 border rounded shadow bg-white">
-      <h1 className="text-2xl font-bold mb-4">Login</h1>
-      <form onSubmit={handleLogin} className="space-y-4">
-        <input
-          type="email"
-          placeholder="Email"
-          className="w-full p-2 border rounded"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full p-2 border rounded"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Login
-        </button>
-      </form>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-black via-indigo-900 to-black text-white">
+      <div className="max-w-md w-full bg-opacity-10 backdrop-blur-md bg-black border border-indigo-600 p-6 rounded-xl shadow-xl">
+        <h1 className="text-3xl font-bold text-white text-center mb-1">StarHub</h1>
+        <p className="text-sm italic text-center mb-6">Connecting Space Enthusiasts Across the Universe</p>
+        <h2 className="text-2xl font-semibold mb-4 text-center">Login</h2>
+
+        <form onSubmit={handleLogin} className="space-y-4">
+          <input
+            type="email"
+            placeholder="Email"
+            className="w-full p-2 bg-white text-black rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            className="w-full p-2 bg-white text-black rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+
+          <button
+            type="submit"
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded transition duration-200"
+          >
+            Login
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
