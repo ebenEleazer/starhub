@@ -7,7 +7,7 @@
 /* === Base layout === */
 body {
   @apply bg-space-dark text-space-light font-futuristic;
-  background-image: url('galaxy.jpg');
+  background-image: url('/galaxy.jpg');
   background-size: cover;
   background-attachment: fixed;
   background-repeat: no-repeat;
@@ -25,13 +25,13 @@ body {
   border-radius: 4px;
 }
 
-/* === Optional reusable card style === */
+/* === Reusable card style === */
 .card {
   @apply p-4 md:p-6 rounded-2xl backdrop-blur-md shadow-glow;
   background-color: rgba(255, 255, 255, 0.05);
 }
 
-/* === Button style override (optional) === */
+/* === Button override === */
 .btn-primary {
   @apply bg-space-accent text-white px-4 py-2 rounded-lg font-semibold shadow-md transition hover:shadow-glow hover:scale-105;
 }

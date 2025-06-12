@@ -1,14 +1,13 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: ["./index.html", "./src/**/*.{js,jsx}"],
   theme: {
     extend: {
       colors: {
-        space: {
-          dark: "#0b0f2b",       // Main background
-          accent: "#5a5df0",     // Highlight color
-          light: "#d1d5db",      // Light gray text
-        },
+        // flattened keys
+        "space-dark": "#0b0f2b",    // main background
+        "space-accent": "#5a5df0",  // highlight
+        "space-light": "#d1d5db",   // light text
       },
       backgroundImage: {
         galaxy: "url('/galaxy.jpg')",
