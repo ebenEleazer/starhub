@@ -7,7 +7,7 @@
 /* === Base layout === */
 body {
   @apply bg-space-dark text-space-light font-futuristic;
-  background-image: url('/galaxy.jpg');
+  background-image: url('galaxy.jpg');
   background-size: cover;
   background-attachment: fixed;
   background-repeat: no-repeat;
@@ -21,7 +21,7 @@ body {
   width: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #5a5df0; /* space-accent */
+  background: #5a5df0;
   border-radius: 4px;
 }
 
@@ -31,7 +31,7 @@ body {
   background-color: rgba(255, 255, 255, 0.05);
 }
 
-/* === Button style override === */
+/* === Button style override (optional) === */
 .btn-primary {
   @apply bg-space-accent text-white px-4 py-2 rounded-lg font-semibold shadow-md transition hover:shadow-glow hover:scale-105;
 }
